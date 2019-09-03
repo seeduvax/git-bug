@@ -24,6 +24,7 @@ type Snapshot struct {
 	Timeline []TimelineItem
 
 	Operations []Operation
+	Attributes []Attribute
 }
 
 // Return the Bug identifier

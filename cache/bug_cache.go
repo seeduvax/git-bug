@@ -144,6 +144,32 @@ func (c *BugCache) ForceChangeLabelsRaw(author *IdentityCache, unixTime int64, a
 	return op, nil
 }
 
+func (c *BugCache) EditAttribute(name string, value string, set bool) (*bug.EditAttributeOperation, error) {
+	author, err := c.repoCache.GetUserIdentity()
+	if err != nil {
+		return nil, err
+	}
+
+	return c.EditAttributeRaw(author, time.Now().Unix(), name, value, set, nil)
+}
+
+func (c *BugCache) EditAttributeRaw(author *IdentityCache, unixTime int64, name string, value string, set bool, metadata map[string]string) (*bug.EditAttributeOperation, error) {
+	op := bug.NewEditAttributeOp(author.Identity, unixTime, name, value, set)
+	c.bug.Append(op);
+
+	for key, value := range metadata {
+		op.SetMetadata(key, value)
+	}
+
+	err := c.notifyUpdated()
+	if err != nil {
+		return nil, err
+	}
+
+	return op, nil
+}
+
+
 func (c *BugCache) Open() (*bug.SetStatusOperation, error) {
 	author, err := c.repoCache.GetUserIdentity()
 	if err != nil {

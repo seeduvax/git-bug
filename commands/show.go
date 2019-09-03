@@ -67,6 +67,10 @@ func runShowBug(cmd *cobra.Command, args []string) error {
 			fmt.Printf("%s\n", snapshot.Status)
 		case "title":
 			fmt.Printf("%s\n", snapshot.Title)
+		case "attributes":
+			for _, a := range snapshot.Attributes {
+					fmt.Printf("%s:\t%s\n", a.Name(), a.Value())
+			}
 		default:
 			return fmt.Errorf("\nUnsupported field: %s\n", showFieldsQuery)
 		}
@@ -105,6 +109,10 @@ func runShowBug(cmd *cobra.Command, args []string) error {
 	fmt.Printf("actors: %s\n",
 		strings.Join(actors, ", "),
 	)
+	fmt.Printf("attributes:\n")
+	for _, a := range snapshot.Attributes {
+		fmt.Printf("\t%s:\t%s\n", a.Name(), a.Value())
+	}
 
 	// Participants
 	var participants = make([]string, len(snapshot.Participants))
@@ -115,6 +123,7 @@ func runShowBug(cmd *cobra.Command, args []string) error {
 	fmt.Printf("participants: %s\n\n",
 		strings.Join(participants, ", "),
 	)
+
 
 	// Comments
 	indent := "  "
@@ -153,5 +162,5 @@ var showCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(showCmd)
 	showCmd.Flags().StringVarP(&showFieldsQuery, "field", "f", "",
-		"Select field to display. Valid values are [author,authorEmail,createTime,humanId,id,labels,shortId,status,title,actors,participants]")
+		"Select field to display. Valid values are [attributes,author,authorEmail,createTime,humanId,id,labels,shortId,status,title,actors,participants]")
 }
