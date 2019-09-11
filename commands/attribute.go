@@ -1,6 +1,7 @@
 package commands
 import (
 	"fmt"
+	"strings"
 
 	"github.com/MichaelMure/git-bug/cache"
 	"github.com/MichaelMure/git-bug/commands/select"
@@ -50,6 +51,14 @@ func runEditAttribute(cmd* cobra.Command, args []string, set bool) error {
 	}
 
 	if set {
+		value:=args[1];
+		if strings.HasPrefix(value,"link:") {
+			target, terr:=backend.ResolveBugPrefix(value)
+			if terr != nil {
+				return err
+			}
+			value=target.Id().String()
+		}
 		_, err = b.EditAttribute(args[0],args[1],set)
 	} else {
 		_, err = b.EditAttribute(args[0],"",set)
