@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/MichaelMure/git-bug/cache"
+	"github.com/MichaelMure/git-bug/entity"
 	_select "github.com/MichaelMure/git-bug/commands/select"
 	"github.com/MichaelMure/git-bug/util/colors"
 	"github.com/MichaelMure/git-bug/util/interrupt"
@@ -69,7 +70,19 @@ func runShowBug(cmd *cobra.Command, args []string) error {
 			fmt.Printf("%s\n", snapshot.Title)
 		case "attributes":
 			for _, a := range snapshot.Attributes {
+				if strings.HasPrefix(a.Name(),"link:") {
+					target, terr:=backend.ResolveBug(entity.Id(a.Value()));
+					if terr!=nil {
+						fmt.Printf("%s:\tUnknown target!\n", a.Name())
+					} else {
+						fmt.Printf("%s:\t%s %s\n", 
+							a.Name(),
+							target.Id().Human(),
+							target.Snapshot().Title)
+					}
+				} else {
 					fmt.Printf("%s:\t%s\n", a.Name(), a.Value())
+				}
 			}
 		default:
 			return fmt.Errorf("\nUnsupported field: %s\n", showFieldsQuery)

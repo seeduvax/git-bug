@@ -52,14 +52,14 @@ func runEditAttribute(cmd* cobra.Command, args []string, set bool) error {
 
 	if set {
 		value:=args[1];
-		if strings.HasPrefix(value,"link:") {
+		if strings.HasPrefix(args[0],"link:") {
 			target, terr:=backend.ResolveBugPrefix(value)
 			if terr != nil {
 				return err
 			}
 			value=target.Id().String()
 		}
-		_, err = b.EditAttribute(args[0],args[1],set)
+		_, err = b.EditAttribute(args[0],value,set)
 	} else {
 		_, err = b.EditAttribute(args[0],"",set)
 	}
