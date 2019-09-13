@@ -70,19 +70,7 @@ func runShowBug(cmd *cobra.Command, args []string) error {
 			fmt.Printf("%s\n", snapshot.Title)
 		case "attributes":
 			for _, a := range snapshot.Attributes {
-				if strings.HasPrefix(a.Name(),"link:") {
-					target, terr:=backend.ResolveBug(entity.Id(a.Value()));
-					if terr!=nil {
-						fmt.Printf("%s:\tUnknown target!\n", a.Name())
-					} else {
-						fmt.Printf("%s:\t%s %s\n", 
-							a.Name(),
-							target.Id().Human(),
-							target.Snapshot().Title)
-					}
-				} else {
-					fmt.Printf("%s:\t%s\n", a.Name(), a.Value())
-				}
+				fmt.Printf("%s:\t%s\n", a.Name(), a.Value())
 			}
 		default:
 			return fmt.Errorf("\nUnsupported field: %s\n", showFieldsQuery)
@@ -124,7 +112,20 @@ func runShowBug(cmd *cobra.Command, args []string) error {
 	)
 	fmt.Printf("attributes:\n")
 	for _, a := range snapshot.Attributes {
-		fmt.Printf("\t%s:\t%s\n", a.Name(), a.Value())
+		if strings.HasPrefix(a.Name(),"link:") {
+			target, terr:=backend.ResolveBug(entity.Id(a.Value()));
+			if terr!=nil {
+				fmt.Printf("\t%s:\t%s, unknown target!\n",
+						 a.Name(),a.Value())
+			} else {
+				fmt.Printf("\t%s:\t%s %s\n", 
+					a.Name(),
+					colors.Cyan(target.Id().Human()),
+					target.Snapshot().Title)
+			}
+		} else {
+			fmt.Printf("\t%s:\t%s\n", a.Name(), a.Value())
+		}
 	}
 
 	// Participants
