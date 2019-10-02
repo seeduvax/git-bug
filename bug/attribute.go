@@ -21,3 +21,10 @@ func (a Attribute) Value() string {
 	return a.value
 }
 
+func NewAttribute(name string, value string) Attribute {
+	return Attribute {
+		name: name,
+		value: value,
+	}
+} 
+

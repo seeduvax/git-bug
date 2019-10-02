@@ -89,7 +89,9 @@ func ParseQuery(query string) (*Query, error) {
 			}
 
 			sortingDone = true
-
+		case "attribute":
+			f:=AttributeFilter(qualifierQuery)
+			result.Attributes=append(result.Attributes,f)
 		default:
 			return nil, fmt.Errorf("unknow qualifier name %s", qualifierName)
 		}

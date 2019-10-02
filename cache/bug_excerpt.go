@@ -15,6 +15,10 @@ func init() {
 	gob.Register(BugExcerpt{})
 }
 
+type AttrExcerpt struct {
+	Name   string
+	Value  string
+}
 // BugExcerpt hold a subset of the bug values to be able to sort and filter bugs
 // efficiently without having to read and compile each raw bugs.
 type BugExcerpt struct {
@@ -31,7 +35,7 @@ type BugExcerpt struct {
 	LenComments  int
 	Actors       []entity.Id
 	Participants []entity.Id
-
+	Attributes   []AttrExcerpt
 	// If author is identity.Bare, LegacyAuthor is set
 	// If author is identity.Identity, AuthorId is set and data is deported
 	// in a IdentityExcerpt
@@ -40,6 +44,7 @@ type BugExcerpt struct {
 
 	CreateMetadata map[string]string
 }
+
 
 // identity.Bare data are directly embedded in the bug excerpt
 type LegacyAuthorExcerpt struct {
@@ -71,6 +76,14 @@ func NewBugExcerpt(b bug.Interface, snap *bug.Snapshot) *BugExcerpt {
 		actorsIds[i] = actor.Id()
 	}
 
+	attributes:=make([]AttrExcerpt, len(snap.Attributes))
+	for i, attribute:=range snap.Attributes {
+		attributes[i]= AttrExcerpt {
+			Name:   attribute.Name(),
+			Value:	attribute.Value(),
+		}
+	}
+
 	e := &BugExcerpt{
 		Id:                b.Id(),
 		CreateLamportTime: b.CreateLamportTime(),
@@ -84,6 +97,7 @@ func NewBugExcerpt(b bug.Interface, snap *bug.Snapshot) *BugExcerpt {
 		Title:             snap.Title,
 		LenComments:       len(snap.Comments),
 		CreateMetadata:    b.FirstOp().AllMetadata(),
+		Attributes:        attributes,
 	}
 
 	switch snap.Author.(type) {

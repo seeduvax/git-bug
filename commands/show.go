@@ -118,13 +118,36 @@ func runShowBug(cmd *cobra.Command, args []string) error {
 				fmt.Printf("\t%s:\t%s, unknown target!\n",
 						 a.Name(),a.Value())
 			} else {
-				fmt.Printf("\t%s:\t%s %s\n", 
+				fmt.Printf("\t%s:\t%s %s\n",
 					a.Name(),
 					colors.Cyan(target.Id().Human()),
 					target.Snapshot().Title)
 			}
 		} else {
 			fmt.Printf("\t%s:\t%s\n", a.Name(), a.Value())
+		}
+	}
+
+	// References from other bugs
+	fmt.Printf("References from:\n")
+	query, err:=cache.ParseQuery("attribute:*="+snapshot.Id().String())
+	if  err!=nil {
+		return err
+	}
+	refIds:=backend.QueryBugs(query)
+	for _, id:=range refIds {
+		b, err:=backend.ResolveBugExcerpt(id)
+		if err != nil {
+			return err
+		}
+		for _, attribute:= range b.Attributes {
+			if attribute.Value==snapshot.Id().String() {
+				fmt.Printf("\t%s:\t%s %s\n",
+					attribute.Name,
+					colors.Cyan(b.Id.Human()),
+					b.Title)
+
+			}
 		}
 	}
 

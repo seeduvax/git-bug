@@ -19,6 +19,7 @@ var (
 	lsTitleQuery       []string
 	lsActorQuery       []string
 	lsNoQuery          []string
+	lsAttributeQuery   []string
 	lsSortBy           string
 	lsSortDirection    string
 )
@@ -97,6 +98,11 @@ func lsQueryFromFlags() (*cache.Query, error) {
 	for _, title := range lsTitleQuery {
 		f := cache.TitleFilter(title)
 		query.Title = append(query.Title, f)
+	}
+
+	for _, attribute := range lsAttributeQuery {
+		f := cache.AttributeFilter(attribute)
+		query.Attributes = append(query.Attributes, f)
 	}
 
 	for _, author := range lsAuthorQuery {
@@ -184,6 +190,8 @@ func init() {
 		"Filter by label")
 	lsCmd.Flags().StringSliceVarP(&lsTitleQuery, "title", "t", nil,
 		"Filter by title")
+	lsCmd.Flags().StringSliceVarP(&lsAttributeQuery, "attribute", "T", nil,
+		"Filter by attribute <name>=<value>, <name> and <value> may be *")
 	lsCmd.Flags().StringSliceVarP(&lsNoQuery, "no", "n", nil,
 		"Filter by absence of something. Valid values are [label]")
 	lsCmd.Flags().StringVarP(&lsSortBy, "by", "b", "creation",

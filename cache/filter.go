@@ -53,6 +53,28 @@ func LabelFilter(label string) Filter {
 		return false
 	}
 }
+// AttributeFilter return a Filter that match attribute
+func AttributeFilter(query string) Filter {
+	return func(repoCache *RepoCache, excerpt *BugExcerpt) bool {
+		expr:=strings.Split(query,"=");
+		aNameFilter:=expr[0];
+		aValueFilter:=expr[1];
+		for _, a:=range excerpt.Attributes {
+			if aNameFilter=="*" {
+				if aValueFilter==a.Value {
+					return true
+				}
+			} else if aValueFilter=="*" {
+				if aNameFilter==a.Name {
+					return true
+				}
+			} else if aNameFilter==a.Name && aValueFilter==a.Value {
+				return true
+			}
+		}
+		return false
+	}
+}
 
 // ActorFilter return a Filter that match a bug actor
 func ActorFilter(query string) Filter {
@@ -118,6 +140,7 @@ type Filters struct {
 	Label       []Filter
 	Title       []Filter
 	NoFilters   []Filter
+	Attributes   []Filter
 }
 
 // Match check if a bug match the set of filters
@@ -147,6 +170,10 @@ func (f *Filters) Match(repoCache *RepoCache, excerpt *BugExcerpt) bool {
 	}
 
 	if match := f.andMatch(f.Title, repoCache, excerpt); !match {
+		return false
+	}
+
+	if match := f.andMatch(f.Attributes, repoCache, excerpt); !match {
 		return false
 	}
 
